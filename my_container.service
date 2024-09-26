@@ -1,0 +1,13 @@
+[Unit]
+Description=My Container Service with Dynamic External IP Binding
+After=network.target
+
+[Service]
+# Run a pre-start script to get the external IP
+ExecStartPre=/bin/bash -c 'EXTERNAL_IP=$(/usr/local/bin/get_external_ip.sh); echo $EXTERNAL_IP > /run/external_ip'
+# Start the container, binding it to the discovered external IP
+ExecStart=/bin/bash -c '/usr/bin/podman run --rm -p $(cat /run/external_ip):80:80 my_container_image'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
